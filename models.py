@@ -1,33 +1,33 @@
-class Employee:
-    def __init__(self,emp_id:str, name:str, skills:str,designation_id:str,username:str,password:str,proj_id:str ):
-        self.emp_id=emp_id
-        self.name=name
-        self.skills=skills
-        self.designation_id=designation_id
-        self.proj_id=proj_id
-        self.username=username
-        self.password=password
-
-class Designation:
-    def __init__(self,designation_id:str,designation:str ):
-        self.designation_id=designation_id
-        self.designation=designation
-
-class AdminLogin:
-    def __init__(self,id:str,name:str,username:str,password:str ):
+class Role:
+    def __init__(self,id:int, role:str ):
         self.id=id
-        self.name=name
+        self.role=role
+
+class User:
+    def __init__(self,id:int,fullname:str,username:int,password:str,role_id:int ):
+        self.id=id
+        self.fullname=fullname
         self.username=username
         self.password=password
+        self.role_id=role_id
 
 class Project:
-    def __init__(self,proj_id:str, name:str, vertical:str,start_date:str,department:str,status:str ):
-        self.proj_id=proj_id
+    def __init__(self,id:int,name:str,vertical:str,start_date:str,department:str,allocation:str ):
+        self.id=id
         self.name=name
-        self.vertical=vertical
         self.start_date=start_date
         self.department=department
-        self.status=status
+        self.allocation=allocation
+        self.vertical=vertical
+
+class Employee:
+    def __init__(self,id:int, name:str, skills:str,designation:str,proj_id:int ):
+        self.id=id
+        self.name=name
+        self.skills=skills
+        self.designation=designation
+        self.proj_id=proj_id
+        
         
 
       

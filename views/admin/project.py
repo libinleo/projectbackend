@@ -10,24 +10,26 @@ from validations import validateProjectData
 
 #insert project details into project table
 @app.route('/project', methods=['POST'])
-def createProject():
+def createProject(id=None):
     try:
         json = request.json
         print(json)
-        proj_id= uuid.uuid4()
         name = json['name']
         vertical = json['vertical']
         start_date = json['start_date']
-        department = json['department'] 
-        status = json['status']     
-        project = Project(proj_id, name, vertical, start_date, department,status)
-        if name and vertical and start_date and department and status and request.method == 'POST':
-            sqlQuery = "INSERT INTO project(proj_id,name, vertical, start_date, department,status) VALUES( %s, %s, %s,%s,%s,%s)"
-            bindData = (project.proj_id,project.name, project.vertical, project.start_date, project.department,project.status)
-            execute(sqlQuery, bindData)           
+        department = json['department']
+        allocation = json['allocation']
+        project = Project(id, name, vertical, start_date, department, allocation)
+        if name and vertical and start_date and department and allocation and request.method == 'POST':
+            # conn = mydb.connect()
+            # cursor = conn.cursor(pymysql.cursors.DictCursor)
+            sqlQuery = "INSERT INTO project(name, vertical, start_date, department, allocation) VALUES( %s, %s, %s,%s,%s)"
+            bindData = (project.name, project.vertical, project.start_date, project.department, project.allocation)
+            execute(sqlQuery, bindData)
+            # conn.commit()
             commitConnection()
             response = jsonify('project added successfully!')
-            response.status_code = 200
+            response.allocation_code = 200
             return response
         else:   
             return showMessage()
@@ -46,14 +48,14 @@ def getProject():
         empRows = cursor.fetchall()
         conn.commit()
         respone = jsonify(empRows)
-        respone.status_code = 200
+        respone.allocation_code = 200
         return respone
     except Exception as e:
         print(e)
 
 #update project details
-@app.route('/project/<proj_id>', methods=['PUT'])
-def updateproject(proj_id):
+@app.route('/project/<id>', methods=['PUT'])
+def updateProject(id):
     try:
         json = request.json
         print(json)
@@ -61,24 +63,24 @@ def updateproject(proj_id):
         vertical = json['vertical']
         start_date = json['start_date']
         department = json['department']
-        status = json['status']
-        project = Project(proj_id, name, vertical, start_date, department,status )
-        print(project.proj_id)
-        if proj_id and name and vertical and start_date and department and status  and request.method == 'PUT':
-            query = "SELECT name FROM project WHERE proj_id=%s"
-            bindData = project.proj_id
+        allocation = json['allocation']
+        project = Project(id, name, vertical, start_date, department,allocation )
+        print(project.id)
+        if id and name and vertical and start_date and department and allocation  and request.method == 'PUT':
+            query = "SELECT name FROM project WHERE id=%s"
+            bindData = project.id
             data = execute(query, bindData)
             if data == 0:
                 commitConnection()
                 response = jsonify('project does not exist')
                 return response
             elif data == 1:
-                sqlQuery = " UPDATE project SET name= %s, vertical= %s, start_date= %s, department= %s,status= %s WHERE proj_id=%s "
-                bindData = (project.name, project.vertical, project.start_date, project.department,project.status, project.proj_id)
+                sqlQuery = " UPDATE project SET name= %s, vertical= %s, start_date= %s, department= %s,allocation= %s WHERE id=%s "
+                bindData = (project.name, project.vertical, project.start_date, project.department,project.allocation, project.id)
                 execute(sqlQuery, bindData)
                 commitConnection()
                 respone = jsonify('Project updated successfully!')
-                respone.status_code = 200
+                respone.allocation_code = 200
                 print(respone)
                 return respone
         else:
@@ -87,12 +89,12 @@ def updateproject(proj_id):
         return jsonify('Some Columns are missing or Mispelled the Column name')
 
 #delete project details
-@app.route('/project/<proj_id>', methods=['DELETE'])
-def deleteproject(proj_id, name=None, vertical=None,  start_date=None, department=None,status=None):
+@app.route('/project/<id>', methods=['DELETE'])
+def deleteProject(id, name=None, vertical=None,  start_date=None, department=None,allocation=None):
     try:
-        project = Project(proj_id, name, vertical, start_date, department, status)
-        sqlQuery = "SELECT name FROM project WHERE proj_id =%s"
-        bindData = project.proj_id
+        project = Project(id, name, vertical, start_date, department, allocation)
+        sqlQuery = "SELECT name FROM project WHERE id =%s"
+        bindData = project.id
         data = execute(sqlQuery, bindData)
         print(data)
         if data == 0:
@@ -100,13 +102,24 @@ def deleteproject(proj_id, name=None, vertical=None,  start_date=None, departmen
             response = jsonify('project does not exist')
             return response
         elif data == 1:
-            sqlQuery = "DELETE FROM project WHERE proj_id =%s"
-            bindData = project.proj_id
+            sqlQuery = "DELETE FROM project WHERE id =%s"
+            bindData = project.id
             data = execute(sqlQuery, bindData)
             print(data)
             commitConnection()
             respone = jsonify(' project deleted successfully!')
-            respone.status_code = 200
+            respone.allocation_code = 200
             return respone
     except Exception as e:
             print(e)
+# error handling
+@app.errorhandler(404)
+def showMessage(error=None):
+    message = {
+        'status': 404,
+        'message': 'Record not found: ' + request.url,
+    }
+    respone = jsonify(message)
+    respone.allocation_code = 404
+    return respone
+  

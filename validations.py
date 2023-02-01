@@ -19,18 +19,36 @@ def validateLoginData( username, password):
         return jsonify({"error": "Username is required"}), 400
     if not password:
         return jsonify({"error": "Password is required"}), 400
+    
+def validateRegisterData(fullname, username, password):
+    if not fullname:
+        return jsonify({"error": "Full name is required"}), 400
+    if len(fullname) < 3:
+        return jsonify({"error": "Full name must be at least 3 characters"}), 400
+    if not all(i.isalpha() or i.isspace() for i in fullname):
+        return jsonify({"error": "Full name can only contain letters and spaces"}), 400
+    if not username:
+        return jsonify({"error": "Username is required"}), 400
+    if len(username) < 3:
+        return jsonify({"error": "Username must be at least 3 characters"}), 400
+    if not password:
+        return jsonify({"error": "Password is required"}), 400
+    password_is_strong, password_error = validate_password_strength(password)
+    if not password_is_strong:
+        return jsonify({"error": password_error}), 400
+    return None
 
-def validateEmployeeData(name, skills,designation_id,proj_id):
+def validateEmployeeData(name, skills,designation,proj_id):
     if not name:
         return jsonify({"error": "name is required"}), 400
     if not skills:
         return jsonify({"error": "skills is required"}), 400
-    if not designation_id:
+    if not designation:
         return jsonify({"error": "designation_id is required"}), 400
     if not proj_id:
         return jsonify({"error": "proj_id is required"}), 400
 
-def validateProjectData(name, vertical,start_date,department,status):
+def validateProjectData(name, vertical,start_date,department,allocation):
     if not name:
         return jsonify({"error": "name is required"}), 400
     if not vertical:
@@ -39,5 +57,5 @@ def validateProjectData(name, vertical,start_date,department,status):
         return jsonify({"error": "start_date is required"}), 400
     if not department:
         return jsonify({"error": "department is required"}), 400 
-    if not status:
+    if not allocation:
         return jsonify({"error": "status is required"}), 400       
