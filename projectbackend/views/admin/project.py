@@ -4,12 +4,14 @@ from config import mydb
 from flask import jsonify
 from flask import request
 from app import app
-import uuid
-from db_services import execute,closeConnection,commitConnection
+from services.db_services import execute,closeConnection,commitConnection
+from services.jwt import tocken_required
+from services.logger import *
 from validations import validateProjectData
 
 #insert project details into project table
 @app.route('/project', methods=['POST'])
+@tocken_required
 def createProject(id=None):
     try:
         json = request.json
@@ -35,11 +37,15 @@ def createProject(id=None):
             return showMessage()
     except KeyError as e:
         return jsonify('Some Columns are missing or Mispelled the Column name')
+    except pymysql.IntegrityError as e:
+        logger.error(f"IntegrityError: {e}")
+        return jsonify('You are entering wrong  id , which is not in table..!!!')
     except Exception as e :
         return jsonify('something went wrong..!!')
 
 #view all project details
 @app.route('/project', methods=['GET'])
+@tocken_required
 def getProject():
     try:       
         conn = mydb.connect()
@@ -52,9 +58,11 @@ def getProject():
         return respone
     except Exception as e:
         print(e)
+        return jsonify("error")
 
 #update project details
 @app.route('/project/<id>', methods=['PUT'])
+@tocken_required
 def updateProject(id):
     try:
         json = request.json
@@ -85,11 +93,15 @@ def updateProject(id):
                 return respone
         else:
             return jsonify('something went wrong')
-    except KeyError:
-        return jsonify('Some Columns are missing or Mispelled the Column name')
+    except pymysql.IntegrityError as e:
+        logger.error(f"IntegrityError: {e}")
+        return jsonify('You are entering wrong id , which is not in table..!!!')
+    except Exception as e:
+        return jsonify('some error')
 
 #delete project details
 @app.route('/project/<id>', methods=['DELETE'])
+@tocken_required
 def deleteProject(id, name=None, vertical=None,  start_date=None, department=None,allocation=None):
     try:
         project = Project(id, name, vertical, start_date, department, allocation)
@@ -123,3 +135,23 @@ def showMessage(error=None):
     respone.allocation_code = 404
     return respone
   
+#   def demo(id, name, vertical, start_date, department,allocation, request):
+#         if not name or not vertical or not start_date or not department or not allocation:
+#         response = make_response(jsonify({'message': 'All fields are required'}))
+#         response.status_code = 400
+#         return response
+
+#     project = Project(id, name, vertical, start_date, department,allocation)
+#     if request.method == 'POST':
+#         sqlQuery = "INSERT INTO project(name, vertical, start_date, department,allocation) VALUES( %s, %s, %s,%s,%s)"
+#         bindData = (project.name, project.vertical, project.department, project.start_date,project.allocation)
+#         try:
+#             execute(sqlQuery, bindData)
+#             commitConnection()
+#         except pymysql.err.IntegrityError as e:
+#             logger.error(f"IntegrityError: {e}")
+#             # return jsonify({'message': 'project already exists with the same name'})
+        
+#         response = jsonify({'message': 'project added successfully!'})
+#         response.status_code = 200
+#         return response

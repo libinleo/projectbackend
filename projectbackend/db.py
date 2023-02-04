@@ -4,7 +4,7 @@ from app import app
 mydb = mysql.connector.connect(
     host = "localhost",
     user = "root",
-    password = "",
+    password = "root",
     database = "myproject"
 )
 #Role table
@@ -22,7 +22,7 @@ mydb_Create_Table_Query = """CREATE TABLE user
 ( id int(50) not null auto_increment,
   fullname varchar(50) not  null,
   username varchar(50) not  null,
-  password varchar(50) not  null,
+  password varchar(200) not  null,
   role_id int(50) not  null,
   CONSTRAINT admin_pk PRIMARY KEY (id),
   FOREIGN KEY(role_id) REFERENCES role(id)

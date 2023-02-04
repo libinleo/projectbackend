@@ -1,14 +1,18 @@
+from urllib import response
 from models import Employee
 import pymysql
+import jwt
 from config import mydb
 from flask import jsonify
 from flask import request
 from app import app
-from db_services import execute,closeConnection,commitConnection
+from services.db_services import execute,closeConnection,commitConnection
 from validations import validateEmployeeData
+from services.jwt import tocken_required
 
 #insert employee details into employee table
 @app.route('/employee', methods=['POST'])
+@tocken_required
 def createEmployee(id=None):
     try:
         json = request.json
@@ -39,6 +43,7 @@ def createEmployee(id=None):
 
 #view all employee details
 @app.route('/employee', methods=['GET'])
+@tocken_required
 def getEmployee():
     try:       
         conn = mydb.connect()
@@ -54,6 +59,7 @@ def getEmployee():
 
 #update employee details
 @app.route('/employee/<id>', methods=['PUT'])
+@tocken_required
 def updateEmployee(id):
     try:
         json = request.json
@@ -88,6 +94,7 @@ def updateEmployee(id):
 
 #delete employee details
 @app.route('/employee/<id>', methods=['DELETE'])
+@tocken_required
 def deleteEmployee(id, name=None, skills=None,  designation=None, proj_id=None):
     try:
         employee = Employee(id, name, skills, designation,proj_id )
